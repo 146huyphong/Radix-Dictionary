@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/dictionarydb
+    username: postgres
+    password: password 
+  jpa:
+    hibernate:
+      ddl-auto: update # Tự động tạo bảng dựa trên code Java
+    show-sql: true
