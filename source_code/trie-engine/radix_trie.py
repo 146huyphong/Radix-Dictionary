@@ -20,7 +20,7 @@ class RadixNode:
     def is_deleted(self):
         return (self.flags & 2) == 2
 
-class RadixTree:
+class RadixTrie:
     def __init__(self):
         self.root = RadixNode()
 
