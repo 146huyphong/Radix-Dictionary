@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  # 1. Cơ sở dữ liệu PostgreSQL
+  postgres-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: dictionarydb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+
+  # 2. Lõi thuật toán Radix Trie
+  trie-engine:
+    build: ./trie-engine
+    ports:
+      - "8000:8000"
+    # Restart tự động nếu code bị lỗi sập
+    restart: always 
+
+  # 3. Quản lý dữ liệu vĩnh viễn
+  dictionary-manager:
+    build: ./dictionary-manager
+    ports:
+      - "8080:8080"
+    # Phải đợi DB và Trie Engine bật lên xong thì Java mới được chạy
+    depends_on:
+      - postgres-db
+      - trie-engine
