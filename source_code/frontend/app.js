@@ -1,8 +1,7 @@
 // --- Cấu hình API ---
-const TRIE_API_URL = "http://localhost:8000/api";
-const DB_API_URL = "http://localhost:8080/api/db/words";
-
-// --- Cấu hình D3.js Canvas ---
+// --- Cấu hình API ---
+const TRIE_API_URL = "https://radix-dictionary-2.onrender.com";
+const DB_API_URL = "https://radix-dictionary.onrender.com/api/words";
 const container = document.getElementById('tree-container');
 const margin = { top: 60, right: 90, bottom: 60, left: 90 };
 let width = container.clientWidth - margin.left - margin.right;
@@ -15,7 +14,6 @@ const svg = d3.select("#tree-container")
     .append("g")
     .attr("transform", `translate(${margin.left},${margin.top})`);
 
-// --- Hàm 1: Gọi API và Vẽ Cây ---
 async function fetchAndRenderTree() {
     try {
         const response = await fetch(`${TRIE_API_URL}/trie`);
@@ -27,19 +25,15 @@ async function fetchAndRenderTree() {
     }
 }
 
-// --- Hàm 2: Thuật toán vẽ cây D3.js ---
 function drawTree(data) {
     svg.selectAll("*").remove(); // Xóa khung vẽ cũ
 
-    // Thiết lập cấu trúc cây
     const root = d3.hierarchy(data);
     
-    // Tự động điều chỉnh chiều cao cây dựa trên số lượng node
     const newHeight = Math.max(height, root.height * 150);
     const treeLayout = d3.tree().size([width, newHeight]);
     treeLayout(root);
 
-    // 1. Vẽ các đường nối (Links)
     svg.selectAll(".link")
         .data(root.links())
         .enter().append("path")
@@ -59,14 +53,12 @@ function drawTree(data) {
         .attr("text-anchor", "middle")
         .text(d => d.target.data.name); // Tên node chính là nhãn của đường đi đến nó
 
-    // 3. Vẽ các Điểm (Nodes)
     const node = svg.selectAll(".node")
         .data(root.descendants())
         .enter().append("g")
         .attr("class", "node")
         .attr("transform", d => `translate(${d.x},${d.y})`);
 
-    // Hình tròn Node (Tô màu đậm nếu là từ kết thúc - is_word: true)
     node.append("circle")
         .attr("r", 12)
         .attr("class", d => {
@@ -78,7 +70,6 @@ function drawTree(data) {
     node.append("title").text(d => d.data.is_word ? `Offset: ${d.data.offset}` : "Intermediate Node");
 }
 
-// --- Các hàm tương tác API ---
 
 async function addWord() {
     const word = document.getElementById("wordInput").value.trim();
@@ -112,21 +103,29 @@ async function searchWord() {
     if (!word) return alert("Vui lòng nhập từ cần tìm!");
 
     try {
-        // Gửi lên Python Trie Engine
-        const response = await fetch(`${TRIE_API_URL}/search/${word}`);
-        const result = await response.json();
-
-        document.getElementById("resultWord").innerText = word;
+        const trieRes = await fetch(`${TRIE_API_URL}/search/${word}`);
         
-        if (response.ok && result.found) {
-            document.getElementById("resultStatus").innerText = "TÌM THẤY";
-            document.getElementById("resultMeaning").innerText = `Logical Offset (Database ID): ${result.offset}`;
-        } else {
+        if (!trieRes.ok) {
             document.getElementById("resultStatus").innerText = "KHÔNG TỒN TẠI";
-            document.getElementById("resultMeaning").innerText = "Từ này không có trong Radix Trie hoặc đã bị xóa.";
+            document.getElementById("resultMeaning").innerText = "Từ này chưa được thêm hoặc đã bị xóa mềm.";
+            return;
         }
+
+        const trieData = await trieRes.json();
+
+        const dbRes = await fetch(`${DB_API_URL}/${trieData.offset}`);
+        
+        if (dbRes.ok) {
+            const dbData = await dbRes.json();
+            // Hiển thị kết quả hoàn hảo lên màn hình!
+            document.getElementById("resultWord").innerText = dbData.word;
+            document.getElementById("resultStatus").innerText = "TÌM THẤY";
+            document.getElementById("resultStatus").className = "text-green-600 font-label text-xs uppercase font-bold mt-1";
+            document.getElementById("resultMeaning").innerText = dbData.meaning;
+        }
+
     } catch (error) {
-        alert("Lỗi tìm kiếm (Kiểm tra Docker Python cổng 8000).");
+        alert("Lỗi kết nối!");
     }
 }
 
@@ -149,5 +148,4 @@ async function deleteWord() {
     }
 }
 
-// Khởi tạo đồ thị ngay khi mở trang
 fetchAndRenderTree();
