@@ -7,7 +7,7 @@ app = FastAPI(title="Trie Engine Microservice")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Cho phép mọi frontend gọi vào
+    allow_origins=["*"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

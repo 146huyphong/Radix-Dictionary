@@ -77,6 +77,7 @@ class RadixTrie:
                 return 
             
     def search(self, word: str) -> int:
+        word = word.lower()
         current_node = self.root
 
         while word:
