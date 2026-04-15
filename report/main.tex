@@ -1,5 +1,6 @@
 \documentclass[12pt, a4paper]{article}
 
+% Đảm bảo trong setup.tex đã có các gói: hyperref, graphicx, float, [utf8]{inputenc}, [vietnamese]{babel}
 \input{setup.tex}
 
 \begin{document}
@@ -11,93 +12,83 @@
 \newpage
 
 \section{Giới thiệu tổng quan}
-\indent Hệ thống Quản lý Sinh viên là một ứng dụng web trực quan
-được thiết kế nhằm mục đích mô phỏng và ứng dụng cấu trúc dữ liệu Cây B-Tree  vào thực tế.
+\indent Ứng dụng từ điển LexiGraph là một dự án phần mềm nhằm minh họa cấu trúc dữ liệu \textbf{Radix Trie} trong việc lưu trữ và truy xuất từ, thay vì sử dụng các ứng dụng từ điển truyền thống dựa trên B-Tree hay hash map. Ứng dụng tích hợp hệ thống trực quan giúp người dùng quan sát trực tiếp các thuật toán hoạt động theo thời gian thực.
 
-\indent Thay vì sử dụng các hệ quản trị cơ sở dữ liệu có sẵn, 
-dự án này tự xây dựng một hệ thống lưu trữ tệp nhị phân kết hợp với thuật toán lập chỉ mục bằng B-Tree để
-tối ưu hóa tốc độ tìm kiếm, thêm và xóa dữ liệu.
-
-Mã nguồn chi tiết và chương trình demo cài đặt B-Tree được lưu trữ công khai. 
+Mã nguồn chi tiết và chương trình demo được lưu trữ công khai. 
 Truy cập tại đây:
 \begin{itemize}
-    \item \href{https://github.com/146huyphong/Simulation-Database}{Source Code Demo trên GitHub}: https://github.com/146huyphong/Simulation-Database
-    \item \href{https://leafy-liger-fd5843.netlify.app/}{Demo trực tuyến}: https://leafy-liger-fd5843.netlify.app
+    \item \href{https://github.com/146huyphong/Radix-Dictionary}{Source Code Demo trên GitHub}: \url{https://github.com/146huyphong/Radix-Dictionary}
+    \item \href{https://radix-dictionary-application.onrender.com/}{Demo trực tuyến}: \url{https://radix-dictionary-application.onrender.com/}
 \end{itemize}
 
 Các công nghệ sử dụng:
+Dự án được xây dựng với mô hình Microservices, bao gồm 3 phân hệ độc lập được triển khai trên Render.
 \begin{itemize}
-    \item Giao diện: HTML5, CSS3, JavaScript (É6+)
-    \item Vẽ biểu đồ: Thư viện D3.js
-    \item Máy chủ: Python3, Flask, Flask-CORS
-    \item Lưu trữ dữ liệu: Tệp nhị phân (student.dat)
+    \item Frontend: HTML5, JavaScript, D3.js
+    \item Trie Engine: Python 3.10, FastAPI
+    \item Dictionary Manager: Java 17, Spring Boot, Hibernate ORM.
 \end{itemize}
 
 \section{Tính năng nổi bật}
 \begin{itemize}
-    \item \textbf{Lập chỉ mục kép}: Hệ thống duy trì song song hai cây B-Tree: một cây sắp xếp theo Mã số sinh viên và một cây sắp xếp theo Họ Tên,
-    giúp tối ưu hóa đa dạng các loại truy vấn.
-    \item \textbf{Mô phỏng trực quan}: Bất kỳ thay đổi nào về dữ liệu (Thêm/Xóa) đều được minh họa ngay lập tức lên biểu đồ cây B-Tree bằng D3.js.
-    \item \textbf{Kiến trúc tách biệt}: Hệ thống giao tiếp hoàn toàn qua RESTful API, cho phép triển khai Frontend và Backend trên các máy chủ đám mây hoàn toàn khác nhau. 
+    \item \textbf{Trực quan hóa cấu trúc dữ liệu}: Người dùng có thể quan sát cách Radix Trie nén các từ có chung tiền tố. Các Node được phân biệt bằng màu sắc: Node chứa từ hoàn chỉnh, Node bị xóa mềm (Node đánh dấu bị xóa) và Node trung gian.
+    \item \textbf{Đồng bộ hóa In-Memory và Database}: Dữ liệu được tìm kiếm trên RAM để thu được offset, sau đó truy xuất nghĩa chi tiết từ Database.
+    \item \textbf{Thuật toán Lazy Deletion}: Khi người dùng xóa một từ, hệ thống không phá vỡ cấu trúc cây ngay lập tức mà chỉ ngắt cờ \textit{is\_word} của Node đó. Điều này giúp tiết kiệm tài nguyên xử lý và cho phép khôi phục từ ngay lập tức khi được chèn lại.  
 \end{itemize} 
 
 \section{Hướng dẫn sử dụng hệ thống}
-\indent Để sử dụng hệ thống, người dùng cần thực hiện các bước sau:
-\subsection{Thêm mới sinh viên}
+Để sử dụng hệ thống, người dùng cần thực hiện các bước sau:
+
+\subsection{Thêm mới từ vựng}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/description/word_inquiry.png}
+    \caption{Khu vực Word Inquiry}
+\end{figure}
+
 \begin{itemize}
-    \begin{figure}[H]
-        \centering
-        \includegraphics[width=0.8\textwidth]{images/description/insert_border.png}
-        \caption{Khu vực thêm sinh viên}
-    \end{figure}
-    \item Bước 1: Tại khu vực ``Thêm Sinh Viên Mới'' đầy đủ thông tin vào các ô: Mã SV, Họ Tên và Giới tính.
-    \item Bước 2: Nhấn nút Thêm Sinh Viên.
+    \item \textbf{Bước 1}: Tại vùng Word Inquiry, nhập lần lượt từ vựng và nghĩa của từ.
 \end{itemize}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{images/description/result_insert.png}
-    \caption{Kết quả khi thêm mới thành công}
+    \includegraphics[width=0.8\textwidth]{images/description/enter_word_inquiry.png}
+    \caption{Ví dụ nhập thêm mới từ vựng}
 \end{figure}
-Kết quả: Hệ thống sẽ lưu dữ liệu vào file nhị phân. Bảng danh sách bên dưới và cấu trúc cây B-Tree bên phải sẽ tự động giật load và vẽ lại ngay lập tức để hiển thị node mới được chèn vào.
 
-\subsection{Xóa sinh viên}
 \begin{itemize}
-    \begin{figure}[H]
-        \centering
-        \includegraphics[width=0.8\textwidth]{images/description/search_delete_border.png}
-        \caption{Khu vực tìm kiếm/xóa sinh viên}
-    \end{figure}
-    \item Bước 1: Tại khu vực ``Tìm kiếm/Xóa (Theo Mã SV)'', chọn tiêu chí tìm kiếm ở menu thả xuống: Xóa theo Mã SV hoặc Họ Tên.
-    \item Bước 2: Nhập chính xác Mã số sinh viên của sinh viên cần xóa
-    \item Bước 3: Nhấn nút \textbf{Xóa}
+    \item \textbf{Bước 2}: Nhấn nút \textbf{New Entry}.
 \end{itemize}
-    \begin{figure}[H]
-        \centering
-        \includegraphics[width=0.8\textwidth]{images/description/result_delete.png}
-        \caption{Kết quả khi xóa thành công}
-    \end{figure}
-Kết quả: Dữ liệu sẽ bị đánh dấu xóa trong file nhị phân. Node tương ứng trên cây B-Tree sẽ biến mất và cây sẽ tự động cân bằng lại theo đúng thuật toán B-Tree.
 
-\subsection{Tìm kiếm sinh viên}
+Kết quả: Từ vừa thêm xuất hiện với trạng thái ``THÀNH CÔNG". Quan trọng hơn, biểu đồ Radix Trie sẽ tự động vẽ thêm các nhánh/Node mới đại diện cho từ vừa nhập.
+
+\subsection{Tra cứu từ vựng}
 \begin{itemize}
-    \item Bước 1: Tại khu vực ``Tìm kiếm / Xóa'', chọn tiêu chí tìm kiếm ở menu thả xuống: Tìm theo Mã SV hoặc Họ Tên.
-    \item Bước 2: Nhập từ khóa tương ứng vào ô nhập liệu.
-    \item Bước 3: Nhấn nút Tìm kiếm.
+    \item \textbf{Bước 1}: Nhập từ cần tìm vào ô nhập từ.
+    \item \textbf{Bước 2}: Nhấn nút Search (biểu tượng kính lúp).
 \end{itemize}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{images/description/search_result.png}
-    \caption{Kết quả tìm kiếm sinh viên tồn tại}
+    \includegraphics[width=0.8\textwidth]{images/description/find_word.png}
+    \caption{Kết quả khi tìm kiếm thành công}
 \end{figure}
-Kết quả: Bảng thông báo bên dưới sẽ hiển thị thông tin sinh viên tìm được, kèm theo địa chỉ Offset.
 
-\subsection{Tương tác với Biểu đồ Cây B-Tree}
+Kết quả: Hệ thống sẽ truy vấn và lấy nghĩa từ Java Database, hiển thị kết quả và trạng thái ``TÌM THẤY" ngay phía dưới form nhập liệu.
+
+\subsection{Xóa từ vựng}
 \begin{itemize}
-    \item Chuyển đổi góc nhìn: Nhấn vào nút Cây theo ID hoặc Cây theo Tên để quan sát sự khác biệt về cấu trúc khi B-Tree sử dụng các khóa khác nhau để sắp xếp.
-    \item Xem cây cỡ lớn: Khi số lượng sinh viên nhiều, cây B-Tree sẽ tự động mở rộng không gian theo chiều ngang. Bạn có thể sử dụng thanh cuộn ngang ở dưới cùng khu vực biểu đồ để kéo qua lại và quan sát toàn bộ các lá của cây một cách rõ nét, không bị chồng chéo chữ.
+    \item \textbf{Bước 1}: Nhập từ cần xóa vào ô nhập liệu.
+    \item \textbf{Bước 2}: Nhấn nút biểu tượng thùng rác.
 \end{itemize}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/description/delete_a_word.png}
+    \caption{Kết quả xóa một từ}
+\end{figure}
+
+Kết quả: Hệ thống báo ``ĐÃ XÓA (Lazy Deletion)". Quan sát biểu đồ cây: Node chứa từ vừa xóa không biến mất mà sẽ chuyển sang trạng thái bị vô hiệu hóa.
 
 \end{document}
