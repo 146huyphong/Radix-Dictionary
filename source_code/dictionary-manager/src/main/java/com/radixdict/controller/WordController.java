@@ -6,8 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List; // THÊM DÒNG NÀY ĐỂ TRÁNH LỖI BIÊN DỊCH!
 
 @RestController
 @RequestMapping("/api/db/words")
@@ -18,7 +20,6 @@ public class WordController {
     private WordRepository repository;
 
     private final RestTemplate restTemplate = new RestTemplate();
-
     private final String PYTHON_ENGINE_URL = "https://radix-dictionary-2.onrender.com/api/words/memory";
 
     @PostMapping
