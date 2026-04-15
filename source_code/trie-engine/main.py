@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from radix_trie import RadixTrie
 from fastapi.middleware.cors import CORSMiddleware
+import requests
 
 app = FastAPI(title="Trie Engine Microservice")
 
@@ -57,3 +58,16 @@ def delete_from_memory(word: str):
 def get_trie_data():
     return trie.to_dict()
     
+@app.on_event("startup")
+def load_data_drom_db():
+    print("Loading data from DB...")
+
+    try:
+        response = requests.get("https://radix-dictionary.onrender.com/api/db/words/all")
+        if response.status_code == 200:
+            words = response.json()
+            for item in words:
+                trie.insert(item['word'], item['id'])
+            print(f"Loaded {len(words)} words into the trie.")
+    except Exception as e:
+        print(f"Error loading data from DB: {e}")

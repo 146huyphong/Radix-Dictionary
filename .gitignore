@@ -20,3 +20,18 @@ rad.json
 *.flf
 #Test results file
 TestResults.xml
+
+
+__pycache__/
+*.py[cod]
+*.pyo
+
+latex/*.aux
+latex/*.log
+latex/*.out
+latex/*.toc
+latex/*.fls
+latex/*.fdb_latexmk
+latex/*.synctex.gz
+latex/*.bbl
+latex/*.blg

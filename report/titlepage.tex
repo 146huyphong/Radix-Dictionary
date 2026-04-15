@@ -1,0 +1,46 @@
+% titlepage.tex
+\begin{titlepage}
+    \newgeometry{left=2cm, right=2cm, top=2cm, bottom=2cm}
+    \thispagestyle{empty} 
+    
+    \begin{tikzpicture}[overlay, remember picture]
+        \draw [line width=3pt, draw=blue] ($(current page.north west) + (1.2cm,-1.0cm)$) 
+            rectangle ($(current page.south east) + (-1.0cm,1.5cm)$);
+        \draw [line width=0.5pt, draw=blue] ($(current page.north west) + (1.3cm,-1.1cm)$) 
+            rectangle ($(current page.south east) + (-1.1cm,1.6cm)$);
+    \end{tikzpicture}
+
+    \begin{center}
+        {\fontsize{17}{14}\selectfont \textbf{ĐẠI HỌC QUỐC GIA THÀNH PHỐ HỒ CHÍ MINH}} \\
+        {\fontsize{17}{14}\selectfont \textbf{TRƯỜNG ĐẠI HỌC CÔNG NGHỆ THÔNG TIN}} \\
+        {\fontsize{18}{14}\selectfont \textbf{KHOA KHOA HỌC MÁY TÍNH}} \\
+        
+        \vspace{3.5cm}
+        
+        \IfFileExists{images/UIT_logo.png}{
+            \includegraphics[width=8cm]{images/UIT_logo.png}
+        }{
+            \vspace{2.5cm} 
+        }
+        
+        \vspace{2.5cm}
+        
+        {\fontsize{20}{16}\selectfont \textbf{CẤU TRÚC DỮ LIỆU VÀ GIẢI THUẬT NÂNG CAO}}\\
+        {\fontsize{20}{24}\selectfont \textbf{TÀI LIỆU GIỚI THIỆU}} \\
+        {\fontsize{20}{24}\selectfont \textbf{ỨNG DỤNG QUẢN LÝ SINH VIÊN}} \\
+        
+        \vspace{2.5cm}
+        
+        \begin{minipage}{0.8\textwidth}
+            \begin{tabular}{ll}
+                \fontsize{17}{16}\textbf{Giảng viên hướng dẫn:} & \fontsize{16}{16}\textbf{Nguyễn Thanh Sơn} \\ 
+                \fontsize{17}{16}\textbf{Sinh viên thực hiện:} & \fontsize{16}{16}\textbf{24521344 - Thái Hoàng Huy Phong} \\
+            \end{tabular}
+        \end{minipage}
+        
+        \vfill
+        {\fontsize{18}{14}\selectfont \textbf{THÀNH PHỐ HỒ CHÍ MINH, 2026}}
+    \end{center}
+    
+    \restoregeometry 
+\end{titlepage}

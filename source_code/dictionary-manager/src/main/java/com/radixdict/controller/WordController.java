@@ -55,4 +55,9 @@ public class WordController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    @GetMapping("/all")
+    public List<WordEntry> getAllWords() {
+        return repository.findAll();
+    }
 }
