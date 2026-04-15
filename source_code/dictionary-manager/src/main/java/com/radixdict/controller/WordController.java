@@ -12,33 +12,44 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/db/words")
+@CrossOrigin(origins = "*")
 public class WordController {
 
     @Autowired
     private WordRepository repository;
     
-    // Công cụ để gọi API của Python
     private final RestTemplate restTemplate = new RestTemplate();
     
-    // URL của dịch vụ Python (chạy ở port 8000)
-    private final String PYTHON_ENGINE_URL = "http://localhost:8000/api/words/memory";
-
+    private final String PYTHON_ENGINE_URL = "http://trie-engine:8000/api/words/memory";
+    
     @PostMapping
     public ResponseEntity<?> addWord(@RequestBody WordEntry requestEntry) {
-        // 1. Lưu từ vào Database trước để lấy ID (Logical Offset)
-        WordEntry savedEntry = repository.save(requestEntry);
+        // 1. Chuẩn hóa: Ép chuỗi thành chữ thường và cắt khoảng trắng
+        String normalizedWord = requestEntry.getWord().toLowerCase().trim();
         
-        // 2. Chuẩn bị gói dữ liệu gửi sang Python
+        // 2. Tìm xem từ này đã tồn tại trong DB chưa
+        WordEntry existingEntry = repository.findByWord(normalizedWord);
+        WordEntry savedEntry;
+        
+        if (existingEntry != null) {
+            // NẾU ĐÃ CÓ: Chỉ cập nhật nghĩa tiếng Việt
+            existingEntry.setMeaning(requestEntry.getMeaning());
+            savedEntry = repository.save(existingEntry);
+        } else {
+            // NẾU CHƯA CÓ: Thêm mới hoàn toàn
+            requestEntry.setWord(normalizedWord);
+            savedEntry = repository.save(requestEntry);
+        }
+        
+        // 3. Gọi Python để cập nhật/hồi sinh từ trên RAM
         Map<String, Object> pythonPayload = new HashMap<>();
         pythonPayload.put("word", savedEntry.getWord());
-        pythonPayload.put("offset", savedEntry.getId()); // Gửi ID làm offset
+        pythonPayload.put("offset", savedEntry.getId());
         
-        // 3. Gọi API Python để cập nhật cây Radix trên RAM
         try {
             restTemplate.postForEntity(PYTHON_ENGINE_URL, pythonPayload, String.class);
         } catch (Exception e) {
-            // Rollback hoặc ghi log nếu Python đang sập
-            System.err.println("Lỗi đồng bộ với Trie Engine: " + e.getMessage());
+            System.err.println("Lỗi đồng bộ Trie Engine: " + e.getMessage());
         }
         
         return ResponseEntity.ok(savedEntry);

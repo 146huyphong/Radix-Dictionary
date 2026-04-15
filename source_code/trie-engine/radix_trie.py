@@ -25,6 +25,7 @@ class RadixTrie:
         self.root = RadixNode()
 
     def insert(self, word: str, offset: int):
+        word = word.lower()
         current_node = self.root
 
         while word:
@@ -97,6 +98,7 @@ class RadixTrie:
         return -1
 
     def delete(self, word: str) -> bool:
+        word = word.lower()
         current_node = self.root
 
         while word:
