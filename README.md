@@ -2,7 +2,7 @@
 ## 📚 LexiGraph - Radix Dictionary
 LexiGraph là một hệ thống từ điển trực quan. Dự án sử dụng cấu trúc dữ liệu Radix Trie để tối ưu hóa tốc độ tra cứu và hiển thị trực tiếp quá trình thuật toán xử lý dữ liệu lên màn hình.
 ## 🌐 Liên kết dự án 
-Demo trực tuyến: radix-dictionary-application.com
+Demo trực tuyến:[radix-dictionary-application.com](https://radix-dictionary-application.onrender.com/)
 ## 🏗️ Công nghệ sử dụng
 Dự án được chia thành 3 phân hệ hoạt động độc lập:
 * Frontend: HTML5, JavaScript, Tailwind CSS, D3.js.
